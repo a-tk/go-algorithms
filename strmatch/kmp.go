@@ -19,7 +19,7 @@ func computePrefixFunction(pattern string) []int {
 	return pi
 }
 
-func StrMatchKmpFirst(input []byte, pattern string) (i int, found bool) {
+func StrMatchKmpFirst[T string | []byte](input T, pattern string) (i int, found bool) {
 	pi := computePrefixFunction(pattern)
 	q := 0                           // number of characters matched
 	for i = 0; i < len(input); i++ { //scan from left to right
@@ -38,7 +38,7 @@ func StrMatchKmpFirst(input []byte, pattern string) (i int, found bool) {
 	return i, false
 }
 
-func StrMatchKmpAll(input []byte, pattern string) (is []int, found bool) {
+func StrMatchKmpAll[T string | []byte](input T, pattern string) (is []int, found bool) {
 	pi := computePrefixFunction(pattern)
 	q := 0                            // number of characters matched
 	for i := 0; i < len(input); i++ { //scan from left to right
@@ -54,5 +54,5 @@ func StrMatchKmpAll(input []byte, pattern string) (is []int, found bool) {
 			q = pi[q] //look for next match
 		}
 	}
-	return is, false
+	return is, len(is) > 0
 }
