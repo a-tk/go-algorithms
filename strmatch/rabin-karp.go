@@ -23,12 +23,40 @@ func rabinKarpMatcher(T, P string, d, q int) {
 	}
 	for s := 0; s < n-(m-1); s++ {
 		if p == t {
-			if P == T[s+1:s+m] {
+			if P == T[s:s+m] {
 				fmt.Printf("pattern occurs with shift %d\n", s)
 			}
 		}
 		if s < n-m {
-			t = (d*(t-int(T[s+1])*h) + int(T[s+m+1])) % q
+			t = (d*(t-int(T[s+1])*h) + int(T[s+m])) % q
 		}
 	}
+}
+
+func simpleRKHash[T string | []byte](s T) int {
+
+	var h int
+
+	for i := 0; i < len(s); i++ {
+		h += int(s[i])
+	}
+
+	return h
+}
+
+func RabinKarpMatcher[T string](s, p T) (i int, found bool) {
+
+	n := len(s)
+	m := len(p)
+	hpattern := simpleRKHash(p)
+	hs := simpleRKHash(s[0 : m-1])
+	for j := 0; j < n-m; j++ {
+		if hs == hpattern {
+			if s[j:j+m-1] == p[0:m-1] {
+				return j, true
+			}
+		}
+		hs = hs - int(s[j]) + int(s[j+m])
+	}
+	return -1, false
 }
