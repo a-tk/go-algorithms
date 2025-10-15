@@ -6,14 +6,15 @@ import (
 )
 
 // rabinKarpMatcher is an impl taken from CLRS. It requires knowledge of which modulo to use
-// q should be positive for % to correctly be modulo
-// d is the radix to use, typically the size of the alphabet
-// with a d-ary alphabet (0,1..d-1) choose q so that dq fits in a computer word
+//
+//	q should be positive for % to correctly be modulo
+//	d is the radix to use, typically the size of the alphabet
+//	with a d-ary alphabet (0,1..d-1) choose q so that dq fits in a computer word
 func rabinKarpMatcher(T, P string, d, q int) {
 
 	n := len(T)
 	m := len(P)
-	h := math.RepeatedSquaringRec(d, m-1)
+	h := math.RepeatedSquaringRec(d, m-1) % q
 	p := 0
 	t := 0
 
@@ -49,14 +50,14 @@ func RabinKarpMatcher[T string](s, p T) (i int, found bool) {
 	n := len(s)
 	m := len(p)
 	hpattern := simpleRKHash(p)
-	hs := simpleRKHash(s[0 : m-1])
+	hs := simpleRKHash(s[0:m]) // usually m-1, however, go slices are exclusive
 	for j := 0; j < n-m; j++ {
+		hs = hs - int(s[j]) + int(s[j+m])
 		if hs == hpattern {
-			if s[j:j+m-1] == p[0:m-1] {
+			if s[j:j+m] == p {
 				return j, true
 			}
 		}
-		hs = hs - int(s[j]) + int(s[j+m])
 	}
 	return -1, false
 }
