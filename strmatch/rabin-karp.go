@@ -5,7 +5,7 @@ import (
 	"github.com/a-tk/go-algorithms/math"
 )
 
-func RabinKarpMatcher[T string | []byte](text, pattern T) (int, bool) {
+func RabinKarpMatcher[T string | []byte](text, pattern T) int {
 	return rabinKarpMatcher(text, pattern, 256, 16777619)
 }
 
@@ -14,7 +14,7 @@ func RabinKarpMatcher[T string | []byte](text, pattern T) (int, bool) {
 //	q should be positive for % to correctly be modulo
 //	d is the radix to use, typically the size of the alphabet (e.g. 256)
 //	with a d-ary alphabet (0,1..d-1) choose q so that dq fits in a computer word
-func rabinKarpMatcher[T string | []byte](text, pattern T, d, q uint32) (int, bool) {
+func rabinKarpMatcher[T string | []byte](text, pattern T, d, q uint32) int {
 
 	n := len(text)
 	m := len(pattern)
@@ -28,14 +28,14 @@ func rabinKarpMatcher[T string | []byte](text, pattern T, d, q uint32) (int, boo
 	for s := 0; s < n-(m-1); s++ {
 		if p == t {
 			if string(pattern) == string(text[s:s+m]) {
-				return s, true
+				return s
 			}
 		}
 		if s < n-m {
 			t = (d*(t-uint32(text[s])*h) + uint32(text[s+m])) % q
 		}
 	}
-	return -1, false
+	return -1
 }
 
 // base 10 for testing
@@ -74,19 +74,19 @@ func simpleRKHash[T string | []byte](s T) int {
 	return h
 }
 
-func RabinKarpSimpleMatcher[T string](s, p T) (i int, found bool) {
+func RabinKarpSimpleMatcher[T string](s, p T) int {
 
 	n := len(s)
 	m := len(p)
 	hpattern := simpleRKHash(p)
 	hs := simpleRKHash(s[0:m]) // usually m-1, however, go slices are open interval [0:m)
-	for j := 0; j < n-m; j++ {
-		hs = hs - int(s[j]) + int(s[j+m])
+	for i := 0; i < n-m; i++ {
+		hs = hs - int(s[i]) + int(s[i+m])
 		if hs == hpattern {
-			if s[j:j+m] == p {
-				return j, true
+			if s[i:i+m] == p {
+				return i
 			}
 		}
 	}
-	return -1, false
+	return -1
 }

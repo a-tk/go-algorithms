@@ -3,9 +3,9 @@ package strmatch
 import "testing"
 
 func Test_rKSimpleWiki(t *testing.T) {
-	_, got := RabinKarpMatcher("abaa", "aa")
+	got := RabinKarpMatcher("abaa", "aa")
 
-	if got != true {
+	if got != 2 {
 		t.Errorf("Fail!\n")
 	}
 }
