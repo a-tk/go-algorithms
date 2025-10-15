@@ -72,6 +72,11 @@ func TestMillerRabin(t *testing.T) {
 	if got {
 		t.Errorf("Fail, found 1001 prime")
 	}
+
+	got = MillerRabin(16777619, 2)
+	if !got {
+		t.Errorf("Fail, found 16777619 composite")
+	}
 }
 
 func TestEratosthenesSieve(t *testing.T) {

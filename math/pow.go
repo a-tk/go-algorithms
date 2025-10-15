@@ -32,3 +32,17 @@ func RepeatedSquaringRec(a, b int) int {
 		return a * d
 	}
 }
+
+func RepeatedSquaring(a, b uint32) uint32 {
+	var y uint32 = 1
+	for b > 1 {
+		// if b is even, a^2, and shift b >> 1
+		if b&0x1 == 1 {
+			b = b - 1
+			y = a * y
+		}
+		a = a * a
+		b = b >> 1
+	}
+	return a * y
+}
