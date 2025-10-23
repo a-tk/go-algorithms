@@ -3,6 +3,7 @@ package strmatch
 import (
 	"fmt"
 	"github.com/a-tk/go-datastructures/graph"
+	"github.com/a-tk/go-datastructures/queue"
 )
 
 // use {he, she, his, hers}
@@ -12,6 +13,46 @@ type Matcher[T string | []byte] struct {
 	g      *graph.GraphAutomata[int, byte]
 	f      map[int]int // from a state go to another state
 	output map[int][]T
+}
+
+func constructFailure[T string | []byte](g *graph.GraphAutomata[int, byte], output map[int][]T) (f map[int]int) {
+	f = make(map[int]int)
+	q := queue.New[int](100) // TODO queue can hold as many letters as transitions from state zero
+	// what should that number be?
+
+	// silly, this is just getting all the valid transitions from 0
+	//as, _ := g.GetTransitionsW(0)
+	//for _, a := range as {
+	//	s, _ := g.GetTransition(0, a)
+	//	q.Enqueue(s)
+	//	f[s] = 0
+	//}
+
+	states, _ := g.GetTransitionsStates(0)
+	for _, s := range states {
+		q.Enqueue(s)
+		f[s] = 0
+	}
+
+	for !q.Empty() {
+		r, _ := q.Dequeue()
+		// for each a such that g(r, a) = s != fail do
+
+		as, _ := g.GetTransitionsW(r)
+		for _, a := range as {
+			// have a, now get s
+			s, _ := g.GetTransition(r, a)
+			q.Enqueue(s)
+			state := f[r]
+
+			for _, ok := g.GetTransition(state, a); !ok; state = f[state] {
+			}
+			t, _ := g.GetTransition(state, a)
+			f[s] = t
+			output[s] = append(output[s], output[f[s]]...)
+		}
+	}
+	return f
 }
 
 func constructGoto[T string | []byte](patterns []T) (
