@@ -15,8 +15,8 @@ type Matcher[T string | []byte] struct {
 	output map[int][]T
 }
 
-func constructFailure[T string | []byte](g *graph.GraphAutomata[int, byte], output map[int][]T) (f map[int]int) {
-	f = make(map[int]int)
+func constructFailure[T string | []byte](g *graph.GraphAutomata[int, byte], output map[int][]T) (map[int]int, map[int][]T) {
+	f := make(map[int]int)
 	q := queue.New[int](100) // TODO queue can hold as many letters as transitions from state zero
 	// what should that number be?
 
@@ -52,7 +52,7 @@ func constructFailure[T string | []byte](g *graph.GraphAutomata[int, byte], outp
 			output[s] = append(output[s], output[f[s]]...)
 		}
 	}
-	return f
+	return f, output
 }
 
 func constructGoto[T string | []byte](patterns []T) (
@@ -60,18 +60,27 @@ func constructGoto[T string | []byte](patterns []T) (
 	output map[int][]T,
 ) {
 	g = graph.NewGraphAutomata[int, byte]()
+	g.AddState(0)
 	output = make(map[int][]T)
 	newState := 0
 
 	enter := func(pattern T) {
 		state := 0
 		j := 0
-		// walk to a new state. For example if "he" already exists and we are adding "hers"
-		for _, ok := g.GetTransition(state, pattern[j]); ok; j++ {
-			state, ok = g.GetTransition(state, pattern[j]) // TODO: yuck
+		// walk to a new state. For example if "he" already exists and we are adding "hers" or "his"
+
+		ok := true
+		for ok {
+			var s int
+			s, ok = g.GetTransition(state, pattern[j])
+			if ok {
+				state = s
+				j++
+			}
 		}
 		for p := j; p < len(pattern); p++ {
 			newState = newState + 1
+			g.AddState(newState)
 			g.AddTransition(state, newState, pattern[p])
 			state = newState
 		}
@@ -91,9 +100,12 @@ func constructGoto[T string | []byte](patterns []T) (
 
 func NewMatcher[T string | []byte](patterns []T) *Matcher[T] {
 	g, output := constructGoto(patterns)
+	f, output := constructFailure(g, output)
+
 	return &Matcher[T]{
 		g:      g,
 		output: output,
+		f:      f,
 	}
 }
 
