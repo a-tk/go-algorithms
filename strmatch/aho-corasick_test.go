@@ -9,5 +9,5 @@ func Test_Ushers(t *testing.T) {
 
 	m := NewMatcher([]string{"he", "she", "his", "hers"})
 
-	m.Match("ushers")
+	m.Match("ushersx")
 }
